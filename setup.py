@@ -13,9 +13,9 @@ setup(
         'mcfeely',
         'mcfeely.management',
     ],
-    package_data=[
-        'mcfeely': ['fixtures/*']
-    ],
+    package_data={
+        'mcfeely': ['fixtures/*'],
+    },
     classifiers=[
         'Development Status :: 1 - Beta',
         'Environment :: Web Environment',
