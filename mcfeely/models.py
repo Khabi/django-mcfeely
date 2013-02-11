@@ -70,4 +70,4 @@ class Unsubscribe(models.Model):
         verbose_name_plural = ('Unsubscribe')
 
     def __unicode__(self):
-        pass
+        return(self.address)
