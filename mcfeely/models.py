@@ -64,10 +64,12 @@ class Unsubscribe(models.Model):
     """ Any email addresses in this table we will not send mail to.  """
     address = models.EmailField()
     added = models.DateTimeField(auto_now_add=True)
+    queue = models.ForeignKey(Queue)
 
     class Meta:
         verbose_name = ('Usubscribe')
         verbose_name_plural = ('Unsubscribe')
+        unique_together = ('address', 'queue')
 
     def __unicode__(self):
         return(self.address)

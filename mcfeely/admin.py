@@ -16,6 +16,10 @@ class EmailAdmin(admin.ModelAdmin):
     inlines = [AlternativeInline, AttachmentInline, HeaderInline]
     list_filter = ('queue', 'm_to', 'deferred', 'sent')
 
+class EmailAdmin(admin.ModelAdmin):
+    list_display = ('address', 'added')
+    list_filter = ('address', 'added')
+
 
 admin.site.register(Queue)
 admin.site.register(Email, EmailAdmin)
