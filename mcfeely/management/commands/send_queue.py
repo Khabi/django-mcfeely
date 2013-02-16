@@ -25,6 +25,9 @@ class Command(BaseCommand):
     help = 'send all mail in the specified queue'
 
     def handle(self, *args, **options):
+        if len(args) == 0:
+            args = [x['queue'] for x in Queue.objects.all().values()]
+
         for queue_name in args:
             queue_type = Queue.objects.get(queue=queue_name)
 

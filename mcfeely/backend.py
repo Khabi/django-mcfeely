@@ -9,7 +9,7 @@ class DbBackend(BaseEmailBackend):
     def send_messages(self, email_messages):
         num_sent = 0
         default_queue = getattr(
-            settings, 'DEFAULT_EMAIL_QUEUE', 'None'
+            settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
         )
 
         if not email_messages:
