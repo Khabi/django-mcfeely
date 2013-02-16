@@ -52,4 +52,3 @@ class SimpleTest(TestCase):
 
         call_command('send_queue', 'Test_Queue')
         self.assertEqual(len(mail.outbox), 1)
-

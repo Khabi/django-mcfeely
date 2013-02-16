@@ -20,6 +20,7 @@ EMAIL_BACKEND = getattr(
     'django.core.mail.backends.smtp.EmailBackend'
 )
 
+
 class Command(BaseCommand):
     args = '<queue_name>'
     help = 'send all mail in the specified queue'
@@ -36,10 +37,12 @@ class Command(BaseCommand):
 
             for message in messages:
 
-                alternatives = Alternative.objects.filter(email=message).values_list('content', 'mimetype')
+                alternatives = Alternative.objects.filter(
+                    email=message).values_list('content', 'mimetype')
                 attachments = Attachment.objects.filter(email=message)
 
-                headers = Header.objects.filter(email=message).values('key', 'value')
+                headers = Header.objects.filter(
+                    email=message).values('key', 'value')
                 mail_headers = {}
                 for header in headers:
                     mail_headers[header['key']] = header['value']
@@ -54,8 +57,8 @@ class Command(BaseCommand):
                         message.m_bcc.split(', '),
                         connection,
                         None,
-                        headers = mail_headers,
-                        alternatives = alternatives
+                        headers=mail_headers,
+                        alternatives=alternatives
                     )
                 else:
                     email = EmailMessage(
@@ -66,7 +69,7 @@ class Command(BaseCommand):
                         message.m_bcc.split(', '),
                         connection,
                         None,
-                        headers = mail_headers,
+                        headers=mail_headers,
                     )
 
                 try:
@@ -74,8 +77,7 @@ class Command(BaseCommand):
                     message.sent = True
                     message.save()
 
-
                 except (socket_error, smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError), err:
                     print('err')
-                    message.deferred=True
+                    message.deferred = True
                     message.save()

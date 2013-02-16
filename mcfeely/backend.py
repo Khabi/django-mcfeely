@@ -59,18 +59,18 @@ class DbBackend(BaseEmailBackend):
                 print(message.extra_headers[header])
 
                 Header.objects.create(
-                    email = email,
-                    key = header,
-                    value = message.extra_headers[header],
+                    email=email,
+                    key=header,
+                    value=message.extra_headers[header],
                 )
 
             try:
                 for alternative in message.alternatives:
                     content, mimetype = alternative
                     Alternative.objects.create(
-                        email = email,
-                        content = content,
-                        mimetype = mimetype
+                        email=email,
+                        content=content,
+                        mimetype=mimetype
                     )
             except AttributeError:
                 pass

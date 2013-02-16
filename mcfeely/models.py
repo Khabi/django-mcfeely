@@ -2,7 +2,6 @@ from django.db import models
 from fields import Base64Field
 
 
-
 class Queue(models.Model):
     queue = models.CharField(max_length=50)
 
@@ -43,16 +42,21 @@ STATUS = (
     ('3', 'failure')
 )
 
+
 class Alternative(models.Model):
     email = models.ForeignKey(Email, related_name='alternatives')
     content = models.TextField()
     mimetype = models.CharField(max_length=255)
 
+
 class Attachment(models.Model):
     email = models.ForeignKey(Email, related_name='attachments')
-    filename = models.CharField(max_length=255, null=True, blank=True, default=None)
+    filename = models.CharField(
+        max_length=255, null=True, blank=True, default=None)
     content = Base64Field(null=True, blank=True, default=None)
-    mimetype = models.CharField(max_length=255, null=True, blank=True, default=None)
+    mimetype = models.CharField(
+        max_length=255, null=True, blank=True, default=None)
+
 
 class Header(models.Model):
     email = models.ForeignKey(Email, related_name='headers')

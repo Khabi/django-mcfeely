@@ -2,6 +2,8 @@ import base64
 from django.db import models
 
 # Stolen from http://djangosnippets.org/snippets/1669/
+
+
 class Base64Field(models.TextField):
 
     def contribute_to_class(self, cls, name):
@@ -20,7 +22,7 @@ class Base64Field(models.TextField):
 try:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules(
-        [([Base64Field],[],{})],
+        [([Base64Field], [], {})],
         ["^database_email_backend\.fields\.Base64Field"]
     )
 except ImportError:

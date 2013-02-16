@@ -5,21 +5,21 @@ from engine import QueueEmailMultiAlternatives
 
 
 def send_mail(subject, message, from_email, recipient_list,
-    fail_silently=False, auth_user=None, auth_password=None,
-    queue=None, connection=None):
+              fail_silently=False, auth_user=None, auth_password=None,
+              queue=None, connection=None):
 
     connection = connection or get_connection(username=auth_user,
-        password=auth_password,
-        fail_silently=fail_silently)
+                                              password=auth_password,
+                                              fail_silently=fail_silently)
 
     return QueueEmailMessage(subject, message, from_email, recipient_list,
-        queue=queue, connection=connection).send()
+                             queue=queue, connection=connection).send()
 
 
 # Todo: add send_mass_mail
 
 def mail_admins(subject, message, queue=None, fail_silently=False,
-    connection=None, html_message=None):
+                connection=None, html_message=None):
     if not settings.ADMINS:
         return
     mail = QueueEmailMultiAlternatives(
@@ -35,7 +35,7 @@ def mail_admins(subject, message, queue=None, fail_silently=False,
 
 
 def mail_managers(subject, message, queue=None, fail_silently=False,
-    connection=None, html_message=None):
+                  connection=None, html_message=None):
     if not settings.MANAGERS:
         return
     mail = QueueEmailMultiAlternatives(
@@ -48,4 +48,3 @@ def mail_managers(subject, message, queue=None, fail_silently=False,
     if html_message:
         mail.attach_alternative(html_message, 'text/html')
     mail.send(fail_silently=fail_silently)
-
