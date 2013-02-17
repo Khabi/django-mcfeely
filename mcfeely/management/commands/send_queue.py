@@ -76,7 +76,9 @@ class Command(BaseCommand):
                     message.sent = True
                     message.save()
 
-                except (socket_error, smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError), err:
+                except (socket_error, smtplib.SMTPSenderRefused,
+                        smtplib.SMTPRecipientsRefused,
+                        smtplib.SMTPAuthenticationError), err:
                     print(err)
                     message.deferred = True
                     message.save()

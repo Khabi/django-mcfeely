@@ -18,8 +18,12 @@ from django.core import mail
 
 class SimpleTest(TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = 'mcfeely.backend.DbBackend'
-        settings.MCFEELY_EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        mcfeely_backend = 'mcfeely.backend.DBBackend'
+        test_sender = 'django.core.mail.backends.locmem.EmailBackend'
+
+        settings.EMAIL_BACKEND = mcfeely_backend
+        settings.MCFEELY_EMAIL_BACKEND = test_sender
+
         self.q = Queue(queue='Test_Queue')
         self.q.save()
 
