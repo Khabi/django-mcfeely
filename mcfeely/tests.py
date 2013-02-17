@@ -18,7 +18,7 @@ from django.core import mail
 
 class SimpleTest(TestCase):
     def setUp(self):
-        mcfeely_backend = 'mcfeely.backend.DBBackend'
+        mcfeely_backend = 'mcfeely.backend.DbBackend'
         test_sender = 'django.core.mail.backends.locmem.EmailBackend'
 
         settings.EMAIL_BACKEND = mcfeely_backend
