@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.core.management.base import CommandError
 from django.core.mail import get_connection
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.conf import settings
@@ -78,6 +77,6 @@ class Command(BaseCommand):
                     message.save()
 
                 except (socket_error, smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError), err:
-                    print('err')
+                    print(err)
                     message.deferred = True
                     message.save()

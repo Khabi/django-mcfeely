@@ -9,12 +9,6 @@ env:
 
 install:
     - pip install -q Django==$DJANGO --use-mirrors
-    - pip install pep8
-    - pip install pyflakes
-
-before_script:
-    - "pep8 --exclude=migrations --ignore=E501,E225 mcfeely"
-    - "pyflakes mcfeely || :"
 
 script: python setup.py test
 

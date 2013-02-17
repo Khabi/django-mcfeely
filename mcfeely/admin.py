@@ -23,11 +23,11 @@ class EmailAdmin(admin.ModelAdmin):
     list_filter = ('queue', 'm_to', 'deferred', 'sent')
 
 
-class EmailAdmin(admin.ModelAdmin):
+class UnsubscribeAdmin(admin.ModelAdmin):
     list_display = ('address', 'added')
     list_filter = ('address', 'added')
 
 
 admin.site.register(Queue)
 admin.site.register(Email, EmailAdmin)
-admin.site.register(Unsubscribe)
+admin.site.register(Unsubscribe, UnsubscribeAdmin)
