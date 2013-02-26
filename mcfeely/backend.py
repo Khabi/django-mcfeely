@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
-from email.MIMEBase import MIMEBase
+from email.mime.base import MIMEBase
 
 from mcfeely.models import Email, Queue, Attachment, Alternative, Header
 
@@ -30,12 +30,12 @@ class DbBackend(BaseEmailBackend):
             )
 
             email = Email.objects.create(
-                m_from=u'%s' % message.from_email,
-                m_to=u', '.join(message.to),
-                m_cc=u', '.join(message.cc),
-                m_bcc=u', '.join(message.bcc),
-                subject=u'%s' % message.subject,
-                body=u'%s' % message.body,
+                m_from='%s' % message.from_email,
+                m_to=', '.join(message.to),
+                m_cc=', '.join(message.cc),
+                m_bcc=', '.join(message.bcc),
+                subject='%s' % message.subject,
+                body='%s' % message.body,
                 queue=message_queue
             )
 

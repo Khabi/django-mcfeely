@@ -1,7 +1,7 @@
 from django.core.mail import get_connection
 from django.conf import settings
-from engine import QueueEmailMessage
-from engine import QueueEmailMultiAlternatives
+from mcfeely.engine import QueueEmailMessage
+from mcfeely.engine import QueueEmailMultiAlternatives
 
 
 def send_mail(subject, message, from_email, recipient_list,
@@ -23,7 +23,7 @@ def mail_admins(subject, message, queue=None, fail_silently=False,
     if not settings.ADMINS:
         return
     mail = QueueEmailMultiAlternatives(
-        u'%s%s' % (settings.EMAIL_SUBJECT_PREFIX, subject),
+        '%s%s' % (settings.EMAIL_SUBJECT_PREFIX, subject),
         message,
         settings.SERVER_EMAIL,
         [a[1] for a in settings.ADMINS],
@@ -39,7 +39,7 @@ def mail_managers(subject, message, queue=None, fail_silently=False,
     if not settings.MANAGERS:
         return
     mail = QueueEmailMultiAlternatives(
-        u'%s%s' % (settings.EMAIL_SUBJECT_PREFIX, subject),
+        '%s%s' % (settings.EMAIL_SUBJECT_PREFIX, subject),
         message,
         settings.SERVER_EMAIL,
         [a[1] for a in settings.MANAGERS],
