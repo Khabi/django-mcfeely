@@ -1,5 +1,5 @@
 from django.db import models
-from fields import Base64Field
+from mcfeely.fields import Base64Field
 
 
 class Queue(models.Model):
