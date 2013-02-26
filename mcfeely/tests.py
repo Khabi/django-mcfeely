@@ -9,9 +9,9 @@ from django.test import TestCase
 from django.core.management import call_command
 
 from uuid import uuid4
-from mail import send_mail
-from models import Email
-from models import Queue
+from mcfeely.mail import send_mail
+from mcfeely.models import Email
+from mcfeely.models import Queue
 from django.conf import settings
 from django.core import mail
 

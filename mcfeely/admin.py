@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Queue, Email, Unsubscribe, Attachment, Alternative, Header
+from mcfeely.models import Queue, Email, Unsubscribe, Attachment, Alternative, Header
 
 
 class AlternativeInline(admin.TabularInline):

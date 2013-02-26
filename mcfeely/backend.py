@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 from email.MIMEBase import MIMEBase
 
-from models import Email, Queue, Attachment, Alternative, Header
+from mcfeely.models import Email, Queue, Attachment, Alternative, Header
 
 
 class DbBackend(BaseEmailBackend):
