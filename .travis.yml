@@ -8,6 +8,11 @@ env:
     - DJANGO_VERSION=DJANGO==1.3.7
     - DJANGO_VERSION=DJANGO==1.5
 
+matrix:
+    include:
+        - python: 3.2
+        env: DJANGO_VERSION=DJANGO==1.5
+
 install:
     - pip install -q $DJANGO_VERSION --use-mirrors
 
