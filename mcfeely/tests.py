@@ -11,6 +11,7 @@ from django.core.management import call_command
 from uuid import uuid4
 from mcfeely.mail import send_mail
 from mcfeely.engine import QueueEmailMessage
+from mcfeely.engine import QueueEmailMultiAlternatives
 from mcfeely.models import Email
 from mcfeely.models import Queue
 from django.conf import settings
@@ -60,6 +61,21 @@ class SimpleTest(TestCase):
         email.send()
         return str(subject)
 
+    def _send_mail_alternative(self, subject=uuid4(), queue=None):
+        email = QueueEmailMultiAlternatives(
+            str(subject),
+            'test email',
+            'test@example.org',
+            ['tester@example.org'],
+            queue=queue)
+
+        email.attach_alternative(
+            '<b>Test Alternative</b>',
+            'text/html')
+
+        email.send()
+        return str(subject)
+
     def test_basic_mail(self):
         subject = self._send_mail()
         Email.objects.get(subject=subject)
@@ -81,3 +97,11 @@ class SimpleTest(TestCase):
         call_command('send_queue', 'Test_Queue')
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].attachments), 1)
+
+    def test_alternative(self):
+        subject = self._send_mail_alternative(queue=self.q)
+        Email.objects.get(subject=subject, queue=self.q)
+
+        call_command('send_queue', 'Test_Queue')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].alternatives), 1)
