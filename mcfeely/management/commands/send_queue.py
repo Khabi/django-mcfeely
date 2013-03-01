@@ -47,7 +47,6 @@ class Command(BaseCommand):
                     mail_headers[header['key']] = header['value']
 
                 if alternatives:
-                    print('alt')
                     email = EmailMultiAlternatives(
                         message.subject,
                         message.body,
@@ -70,6 +69,14 @@ class Command(BaseCommand):
                         None,
                         headers=mail_headers,
                     )
+
+                if attachments:
+                    for attachment in attachments:
+                        email.attach(
+                            attachment.filename,
+                            attachment.content,
+                            attachment.mimetype
+                        )
 
                 try:
                     email.send()
