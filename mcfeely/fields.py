@@ -1,7 +1,9 @@
 import base64
 from django.db import models
-
-# Stolen from http://djangosnippets.org/snippets/1669/
+try:
+    from django.utils.encoding import force_bytes
+except:
+    pass
 
 
 class Base64Field(models.TextField):
@@ -14,16 +16,20 @@ class Base64Field(models.TextField):
         setattr(cls, name, property(self.get_data, self.set_data))
 
     def get_data(self, obj):
-        return base64.decodestring(getattr(obj, self.field_name).encode('utf-8', 'ignore'))
+        try:
+            return  base64.b64decode(
+                force_bytes(
+                    getattr(
+                        obj,
+                        self.field_name)))
+        except NameError:
+            return base64.b64decode(getattr(obj, self.field_name))
 
     def set_data(self, obj, data):
-        setattr(obj, self.field_name, base64.encodestring(data.encode('utf-8', 'ignore')))
-
-try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules(
-        [([Base64Field], [], {})],
-        ["^database_email_backend\.fields\.Base64Field"]
-    )
-except ImportError:
-    pass
+        try:
+            setattr(
+                obj,
+                self.field_name,
+                base64.b64encode(force_bytes(data)))
+        except NameError:
+            setattr(obj, self.field_name, base64.b64encode(data))
