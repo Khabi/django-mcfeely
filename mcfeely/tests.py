@@ -12,7 +12,7 @@ from uuid import uuid4
 from mcfeely.mail import send_mail
 from mcfeely.engine import QueueEmailMessage
 from mcfeely.engine import QueueEmailMultiAlternatives
-from mcfeely.models import Email, ToRecipient, CcRecipient
+from mcfeely.models import Email, Recipient
 from mcfeely.models import Queue
 from mcfeely.models import Unsubscribe
 from django.conf import settings
@@ -136,7 +136,8 @@ class SimpleTest(TestCase):
     def test_unsubscribe(self):
         subject = self._send_mail(mail_to=['unsub1@example.org', 'tester@example.org'], mail_cc=['tstcc@example.org'])
         Email.objects.get(subject=subject)
-        #print(CcRecipient.objects.all())
-        #print(ToRecipient.objects.all())
 
         call_command('send_queue')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].to), 1)
+

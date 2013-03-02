@@ -8,6 +8,11 @@ STATUS = (
     ('blocked_unsubscribe', 'Blocked by unsubscribe'),
     ('failure', 'Failure'),
 )
+RECIPIENT_TYPE = (
+    ('to', 'To'),
+    ('cc', 'CC'),
+    ('bcc', 'BCC'),
+)
 
 
 class Queue(models.Model):
@@ -39,22 +44,13 @@ class Email(models.Model):
         return('[ %s ] - %s' % (self.queue, self.subject))
 
 
-class ToRecipient(models.Model):
+class Recipient(models.Model):
     email = models.ForeignKey(Email)
-    address = models.TextField('To')
+    address = models.TextField()
+    recipient_type =  models.CharField(max_length=3, choices=RECIPIENT_TYPE)
     status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
 
 
-class CcRecipient(models.Model):
-    email = models.ForeignKey(Email)
-    address = models.TextField('CC')
-    status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
-
-
-class BccRecipient(models.Model):
-    email = models.ForeignKey(Email)
-    address = models.TextField('BCC')
-    status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
 
 
 class Alternative(models.Model):
@@ -91,3 +87,4 @@ class Unsubscribe(models.Model):
 
     def __unicode__(self):
         return(self.address)
+
