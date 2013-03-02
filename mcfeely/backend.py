@@ -3,6 +3,7 @@ from django.core.mail.backends.base import BaseEmailBackend
 from email.mime.base import MIMEBase
 
 from mcfeely.models import Email, Queue, Attachment, Alternative, Header
+from mcfeely.models import ToRecipient, CcRecipient, BccRecipient
 
 
 class DbBackend(BaseEmailBackend):
@@ -31,13 +32,28 @@ class DbBackend(BaseEmailBackend):
 
             email = Email.objects.create(
                 m_from='%s' % message.from_email,
-                m_to=', '.join(message.to),
-                m_cc=', '.join(message.cc),
-                m_bcc=', '.join(message.bcc),
+                #m_to=', '.join(message.to),
+                #m_cc=', '.join(message.cc),
+                #m_bcc=', '.join(message.bcc),
                 subject='%s' % message.subject,
                 body='%s' % message.body,
                 queue=message_queue
             )
+
+            for address in message.to:
+                ToRecipient.objects.create(
+                    email=email,
+                    address=address)
+
+            for address in message.cc:
+                CcRecipient.objects.create(
+                    email=email,
+                    address=address)
+
+            for address in message.bcc:
+                BccRecipient.objects.create(
+                    email=email,
+                    address=address)
 
             for attachment in message.attachments:
                 if isinstance(attachment, tuple):
@@ -56,9 +72,7 @@ class DbBackend(BaseEmailBackend):
                 )
 
             for header in message.extra_headers:
-                print(header)
-                print(message.extra_headers[header])
-
+                # ToDo: Test this
                 Header.objects.create(
                     email=email,
                     key=header,

@@ -12,8 +12,9 @@ from uuid import uuid4
 from mcfeely.mail import send_mail
 from mcfeely.engine import QueueEmailMessage
 from mcfeely.engine import QueueEmailMultiAlternatives
-from mcfeely.models import Email
+from mcfeely.models import Email, ToRecipient, CcRecipient
 from mcfeely.models import Queue
+from mcfeely.models import Unsubscribe
 from django.conf import settings
 from django.core import mail
 
@@ -26,8 +27,21 @@ class SimpleTest(TestCase):
         settings.EMAIL_BACKEND = mcfeely_backend
         settings.MCFEELY_EMAIL_BACKEND = test_sender
 
+        default_q = getattr(
+            settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
+        )
+        self.default_q = Queue.objects.get(queue=default_q)
+
         self.q = Queue(queue='Test_Queue')
         self.q.save()
+
+        self.unsub_all = Unsubscribe(address='unsub1@example.org')
+        self.unsub_all.save()
+
+        self.unsub_testqueue = Unsubscribe(
+            address='unsub2@example.org',
+            queue=self.q)
+        self.unsub_testqueue.save()
 
     def test_basic_addition(self):
         """
@@ -35,22 +49,34 @@ class SimpleTest(TestCase):
         """
         self.assertEqual(1 + 1, 2)
 
-    def _send_mail(self, subject=uuid4(), queue=None):
-        send_mail(
-            str(subject),
-            'test email',
-            'test@example.org',
-            ['tester@example.org'],
-            queue=queue,
-            fail_silently=False)
-        return str(subject)
-
-    def _send_mail_attachment(self, subject=uuid4(), queue=None):
+    def _send_mail(self, subject=uuid4(), mail_to=['tester@example.org'],
+                   mail_cc=None, mail_bb=None, queue=None):
+        #send_mail(
+        #    str(subject),
+        #    'test email',
+        #    'test@example.org',
+        #    mail_to,
+        #    queue=queue,
+        #    fail_silently=False)
+        #return str(subject)
         email = QueueEmailMessage(
             str(subject),
             'test email',
             'test@example.org',
-            ['tester@example.org'],
+            mail_to,
+            cc=mail_cc,
+            queue=queue)
+
+        email.send()
+        return str(subject)
+
+    def _send_mail_attachment(self, subject=uuid4(),
+                              mail_to=['tester@example.org'], queue=None):
+        email = QueueEmailMessage(
+            str(subject),
+            'test email',
+            'test@example.org',
+            mail_to,
             queue=queue)
 
         email.attach(
@@ -61,12 +87,13 @@ class SimpleTest(TestCase):
         email.send()
         return str(subject)
 
-    def _send_mail_alternative(self, subject=uuid4(), queue=None):
+    def _send_mail_alternative(self, subject=uuid4(),
+                               mail_to=['tester@example.org'], queue=None):
         email = QueueEmailMultiAlternatives(
             str(subject),
             'test email',
             'test@example.org',
-            ['tester@example.org'],
+            mail_to,
             queue=queue)
 
         email.attach_alternative(
@@ -105,3 +132,11 @@ class SimpleTest(TestCase):
         call_command('send_queue', 'Test_Queue')
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
+
+    def test_unsubscribe(self):
+        subject = self._send_mail(mail_to=['unsub1@example.org', 'tester@example.org'], mail_cc=['tstcc@example.org'])
+        Email.objects.get(subject=subject)
+        #print(CcRecipient.objects.all())
+        #print(ToRecipient.objects.all())
+
+        call_command('send_queue')

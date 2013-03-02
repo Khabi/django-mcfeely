@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.core.mail import get_connection
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.conf import settings
+from django.db.models import Q
 
 from socket import error as socket_error
 import smtplib
@@ -12,6 +13,7 @@ from mcfeely.models import Unsubscribe
 from mcfeely.models import Alternative
 from mcfeely.models import Attachment
 from mcfeely.models import Header
+from mcfeely.models import ToRecipient, CcRecipient, BccRecipient
 
 EMAIL_BACKEND = getattr(
     settings,
@@ -31,10 +33,26 @@ class Command(BaseCommand):
         for queue_name in args:
             queue_type = Queue.objects.get(queue=queue_name)
 
-            messages = Email.objects.filter(queue=queue_type, sent=False)
+            messages = Email.objects.filter(queue=queue_type).filter(
+                Q(torecipient__status='in_queue') |
+                Q(ccrecipient__status='in_queue') |
+                Q(bccrecipient__status='in_queue')).distinct()
+
             connection = get_connection(backend=EMAIL_BACKEND)
 
             for message in messages:
+                for recipient in message.torecipient_set.all():
+                    try:
+                        Unsubscribe.objects.get(
+                            Q(queue=queue_type) | Q(queue=None),
+                            address=recipient.address)
+                        print(recipient.address)
+
+
+                    except Unsubscribe.DoesNotExist:
+                        pass
+
+                # recipients = [i for i in recip_list if i != '']
 
                 alternatives = Alternative.objects.filter(
                     email=message).values_list('content', 'mimetype')
@@ -80,12 +98,12 @@ class Command(BaseCommand):
 
                 try:
                     email.send()
-                    message.sent = True
+                    message.status = 'sent_success'
                     message.save()
 
                 except (socket_error, smtplib.SMTPSenderRefused,
                         smtplib.SMTPRecipientsRefused,
                         smtplib.SMTPAuthenticationError) as err:
                     print(err)
-                    message.deferred = True
+                    message.status = 'deferred'
                     message.save()

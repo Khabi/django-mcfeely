@@ -18,9 +18,9 @@ class HeaderInline(admin.TabularInline):
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ('m_to', 'subject', 'queue', 'deferred', 'sent')
+    list_display = ('m_to', 'subject', 'queue', 'status')
     inlines = [AlternativeInline, AttachmentInline, HeaderInline]
-    list_filter = ('queue', 'm_to', 'deferred', 'sent')
+    list_filter = ('queue', 'm_to', 'status')
 
 
 class UnsubscribeAdmin(admin.ModelAdmin):

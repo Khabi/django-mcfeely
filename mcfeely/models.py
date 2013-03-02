@@ -1,6 +1,14 @@
 from django.db import models
 from mcfeely.fields import Base64Field
 
+STATUS = (
+    ('in_queue', 'In Queue'),
+    ('sent_success', 'Sent Successfuly'),
+    ('deferred', 'Deferred'),
+    ('blocked_unsubscribe', 'Blocked by unsubscribe'),
+    ('failure', 'Failure'),
+)
+
 
 class Queue(models.Model):
     queue = models.CharField(max_length=50)
@@ -15,18 +23,13 @@ class Queue(models.Model):
 
 class Email(models.Model):
     """ Queued up Emails to be sent out. """
-    m_to = models.TextField('To')
     m_from = models.TextField('From')
-    m_cc = models.TextField('CC', null=True, blank=True)
-    m_bcc = models.TextField('BCC', null=True, blank=True)
 
     # Subjects can be be longer if they're split byt CRLF, but this is a good
     # default
     subject = models.CharField(max_length=78)
     body = models.TextField()
     queue = models.ForeignKey(Queue)
-    deferred = models.BooleanField(default=False)
-    sent = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = ('Message Queue')
@@ -36,11 +39,22 @@ class Email(models.Model):
         return('[ %s ] - %s' % (self.queue, self.subject))
 
 
-STATUS = (
-    ('1', 'success'),
-    ('2', 'blocked'),
-    ('3', 'failure')
-)
+class ToRecipient(models.Model):
+    email = models.ForeignKey(Email)
+    address = models.TextField('To')
+    status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
+
+
+class CcRecipient(models.Model):
+    email = models.ForeignKey(Email)
+    address = models.TextField('CC')
+    status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
+
+
+class BccRecipient(models.Model):
+    email = models.ForeignKey(Email)
+    address = models.TextField('BCC')
+    status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
 
 
 class Alternative(models.Model):
