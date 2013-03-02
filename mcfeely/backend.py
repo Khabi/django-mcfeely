@@ -10,31 +10,18 @@ class DbBackend(BaseEmailBackend):
 
     def send_messages(self, email_messages):
         num_sent = 0
-        default_queue = getattr(
-            settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
-        )
+
 
         if not email_messages:
             return num_sent
 
         for message in email_messages:
-            queue = getattr(
-                message,
-                'queue',
-                default_queue
-            )
-            if queue is None:
-                queue = default_queue
-
-            message_queue = Queue.objects.get(
-                queue=queue
-            )
 
             email = Email.objects.create(
                 m_from=message.from_email,
                 subject=message.subject,
                 body=message.body,
-                queue=message_queue
+                queue=message.queue
             )
 
             for address in message.to:

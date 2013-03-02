@@ -27,12 +27,8 @@ class SimpleTest(TestCase):
         settings.EMAIL_BACKEND = mcfeely_backend
         settings.MCFEELY_EMAIL_BACKEND = test_sender
 
-        default_q = getattr(
-            settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
-        )
-        self.default_q = Queue.objects.get(queue=default_q)
 
-        self.q = Queue(queue='Test_Queue')
+        self.q = Queue(queue='Test_Queue', description='Testing')
         self.q.save()
 
         self.unsub_all = Unsubscribe(address='unsub1@example.com')

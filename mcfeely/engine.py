@@ -1,4 +1,15 @@
 from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.conf import settings
+from mcfeely.models import Queue
+
+def default_queue(queue):
+    if queue is None:
+        default_queue = getattr(
+            settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
+        )
+        return(Queue.objects.get(queue=default_queue))
+    else:
+        return queue
 
 
 class QueueEmailMessage(EmailMessage):
@@ -17,7 +28,7 @@ class QueueEmailMessage(EmailMessage):
             attachments,
             headers,
             cc)
-        self.queue = queue
+        self.queue = default_queue(queue)
 
 
 class QueueEmailMultiAlternatives(EmailMultiAlternatives):
@@ -36,4 +47,4 @@ class QueueEmailMultiAlternatives(EmailMultiAlternatives):
             attachments,
             headers,
             cc)
-        self.queue = queue
+        self.queue = default_queue(queue)
