@@ -1,1 +1,6 @@
-# Create your views here.
+from django.views.generic.edit import CreateView
+from mcfeely.forms import UnsubscribeForm
+
+class UnsubscribeView(CreateView):
+    form_class = UnsubscribeForm
+    template_name = 'mcfeely/unsubscribe.html'

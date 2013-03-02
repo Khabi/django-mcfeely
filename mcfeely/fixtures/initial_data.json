@@ -1,1 +1,1 @@
-[{"pk": 1, "model": "mcfeely.queue", "fields": {"queue": "Default"}}]
+[{"pk": 1, "model": "mcfeely.queue", "fields": {"queue": "Default", "description": "Default Queue", "display_to_user": false}}]

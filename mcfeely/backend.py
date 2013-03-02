@@ -31,9 +31,9 @@ class DbBackend(BaseEmailBackend):
             )
 
             email = Email.objects.create(
-                m_from='%s' % message.from_email,
-                subject='%s' % message.subject,
-                body='%s' % message.body,
+                m_from=message.from_email,
+                subject=message.subject,
+                body=message.body,
                 queue=message_queue
             )
 
@@ -50,7 +50,7 @@ class DbBackend(BaseEmailBackend):
                     recipient_type='cc')
 
             for address in message.bcc:
-                BccRecipient.objects.create(
+                Recipient.objects.create(
                     email=email,
                     address=address,
                     recipient_type='bcc')

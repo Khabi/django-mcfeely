@@ -18,14 +18,14 @@ class HeaderInline(admin.TabularInline):
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ('m_to', 'subject', 'queue', 'status')
+    list_display = ('subject', 'queue')
     inlines = [AlternativeInline, AttachmentInline, HeaderInline]
-    list_filter = ('queue', 'm_to', 'status')
+    #list_filter = ('queue', 'm_to', 'status')
 
 
 class UnsubscribeAdmin(admin.ModelAdmin):
-    list_display = ('address', 'added')
-    list_filter = ('address', 'added')
+    list_display = ('address', 'added', 'queue')
+    list_filter = ('address', 'added', 'queue')
 
 
 admin.site.register(Queue)

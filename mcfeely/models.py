@@ -17,13 +17,15 @@ RECIPIENT_TYPE = (
 
 class Queue(models.Model):
     queue = models.CharField(max_length=50)
+    description = models.CharField('Queue Description',max_length=200)
+    display_to_user = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = ('Queue Type')
         verbose_name_plural = ('Queue Types')
 
     def __unicode__(self):
-        return(self.queue)
+        return(self.description)
 
 
 class Email(models.Model):
@@ -76,9 +78,10 @@ class Header(models.Model):
 
 class Unsubscribe(models.Model):
     """ Any email addresses in this table we will not send mail to.  """
-    address = models.EmailField()
+    address = models.EmailField('Email Address')
     added = models.DateTimeField(auto_now_add=True)
     queue = models.ForeignKey(Queue, blank=True, null=True)
+
 
     class Meta:
         verbose_name = ('Usubscribe')

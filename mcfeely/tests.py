@@ -35,11 +35,11 @@ class SimpleTest(TestCase):
         self.q = Queue(queue='Test_Queue')
         self.q.save()
 
-        self.unsub_all = Unsubscribe(address='unsub1@example.org')
+        self.unsub_all = Unsubscribe(address='unsub1@example.com')
         self.unsub_all.save()
 
         self.unsub_testqueue = Unsubscribe(
-            address='unsub2@example.org',
+            address='unsub2@example.com',
             queue=self.q)
         self.unsub_testqueue.save()
 
@@ -49,33 +49,37 @@ class SimpleTest(TestCase):
         """
         self.assertEqual(1 + 1, 2)
 
-    def _send_mail(self, subject=uuid4(), mail_to=['tester@example.org'],
-                   mail_cc=None, mail_bb=None, queue=None):
-        #send_mail(
-        #    str(subject),
-        #    'test email',
-        #    'test@example.org',
-        #    mail_to,
-        #    queue=queue,
-        #    fail_silently=False)
-        #return str(subject)
+    def _send_mail_simple(self, subject=uuid4(), mail_to=['tester@example.com'], queue=None):
+        send_mail(
+            str(subject),
+            'test email',
+            'test@example.com',
+            mail_to,
+            queue=queue,
+            fail_silently=False)
+        return str(subject)
+
+    def _send_mail_advanced(self, subject=uuid4(), mail_to=['tester@example.com'],
+                   mail_cc=None, mail_bcc=None, headers=None, queue=None):
         email = QueueEmailMessage(
             str(subject),
             'test email',
-            'test@example.org',
+            'test@example.com',
             mail_to,
             cc=mail_cc,
-            queue=queue)
+            bcc=mail_bcc,
+            queue=queue,
+            headers=headers)
 
         email.send()
         return str(subject)
 
     def _send_mail_attachment(self, subject=uuid4(),
-                              mail_to=['tester@example.org'], queue=None):
+                              mail_to=['tester@example.com'], queue=None):
         email = QueueEmailMessage(
             str(subject),
             'test email',
-            'test@example.org',
+            'test@example.com',
             mail_to,
             queue=queue)
 
@@ -88,11 +92,11 @@ class SimpleTest(TestCase):
         return str(subject)
 
     def _send_mail_alternative(self, subject=uuid4(),
-                               mail_to=['tester@example.org'], queue=None):
+                               mail_to=['tester@example.com'], queue=None):
         email = QueueEmailMultiAlternatives(
             str(subject),
             'test email',
-            'test@example.org',
+            'test@example.com',
             mail_to,
             queue=queue)
 
@@ -103,15 +107,32 @@ class SimpleTest(TestCase):
         email.send()
         return str(subject)
 
-    def test_basic_mail(self):
-        subject = self._send_mail()
+    def test_simple_mail(self):
+        subject = self._send_mail_simple()
         Email.objects.get(subject=subject)
 
         call_command('send_queue')
         self.assertEqual(len(mail.outbox), 1)
 
+    def test_advanced_mail(self):
+        subject = self._send_mail_advanced(
+            mail_cc = ['cctest@example.com'],
+            mail_bcc = ['bcctest@example.com'],
+            headers={'Reply-To': 'another@example.com'},
+            queue = self.q)
+        Email.objects.get(subject=subject, queue=self.q)
+
+        call_command('send_queue', 'Test_Queue')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].to), 1)
+        self.assertEqual(len(mail.outbox[0].bcc), 1)
+        self.assertEqual(len(mail.outbox[0].cc), 1)
+        self.assertEqual(
+            mail.outbox[0].extra_headers['Reply-To'],
+            'another@example.com')
+
     def test_queue_mail(self):
-        subject = self._send_mail(queue=self.q)
+        subject = self._send_mail_simple(queue=self.q)
         Email.objects.get(subject=subject, queue=self.q)
 
         call_command('send_queue', 'Test_Queue')
@@ -134,7 +155,9 @@ class SimpleTest(TestCase):
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
 
     def test_unsubscribe(self):
-        subject = self._send_mail(mail_to=['unsub1@example.org', 'tester@example.org'], mail_cc=['tstcc@example.org'])
+        subject = self._send_mail_simple(
+            mail_to=['unsub1@example.com',
+            'tester@example.com'])
         Email.objects.get(subject=subject)
 
         call_command('send_queue')
