@@ -1,5 +1,10 @@
 from django.contrib import admin
 from mcfeely.models import Queue, Email, Unsubscribe, Attachment, Alternative, Header
+from mcfeely.models import Recipient
+
+class RecipientInline(admin.TabularInline):
+    model = Recipient
+    extra = 0
 
 
 class AlternativeInline(admin.TabularInline):
@@ -18,8 +23,8 @@ class HeaderInline(admin.TabularInline):
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'queue')
-    inlines = [AlternativeInline, AttachmentInline, HeaderInline]
+    list_display = ('subject', 'queue', 'created')
+    inlines = [RecipientInline, AlternativeInline, AttachmentInline, HeaderInline]
     #list_filter = ('queue', 'm_to', 'status')
 
 
@@ -31,3 +36,4 @@ class UnsubscribeAdmin(admin.ModelAdmin):
 admin.site.register(Queue)
 admin.site.register(Email, EmailAdmin)
 admin.site.register(Unsubscribe, UnsubscribeAdmin)
+

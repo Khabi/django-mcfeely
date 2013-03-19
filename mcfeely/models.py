@@ -20,10 +20,6 @@ class Queue(models.Model):
     description = models.CharField('Queue Description',max_length=200)
     display_to_user = models.BooleanField(default=False)
 
-    class Meta:
-        verbose_name = ('Queue Type')
-        verbose_name_plural = ('Queue Types')
-
     def __unicode__(self):
         return(self.description)
 
@@ -37,10 +33,7 @@ class Email(models.Model):
     subject = models.CharField(max_length=78)
     body = models.TextField()
     queue = models.ForeignKey(Queue)
-
-    class Meta:
-        verbose_name = ('Message Queue')
-        verbose_name_plural = ('Message Queue')
+    created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return('[ %s ] - %s' % (self.queue, self.subject))
@@ -48,11 +41,9 @@ class Email(models.Model):
 
 class Recipient(models.Model):
     email = models.ForeignKey(Email)
-    address = models.TextField()
+    address = models.CharField(max_length=254)
     recipient_type =  models.CharField(max_length=3, choices=RECIPIENT_TYPE)
     status = models.CharField(max_length='100', default='in_queue', choices=STATUS)
-
-
 
 
 class Alternative(models.Model):
