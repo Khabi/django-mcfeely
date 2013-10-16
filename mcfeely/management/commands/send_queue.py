@@ -81,15 +81,17 @@ class Command(BaseCommand):
                     for header in headers:
                         mail_headers[header['key']] = header['value']
 
-                    message_to = message.recipient_set.filter(
+                    recipients = message.recipient_set.filter(
+                        status=status)
+                    message_to = recipients.filter(
                         recipient_type='to',
-                        status=status).values_list('address', flat=True)
+                        ).values_list('address', flat=True)
                     message_bcc = message.recipient_set.filter(
                         recipient_type='bcc',
-                        status=status).values_list('address', flat=True)
+                        ).values_list('address', flat=True)
                     message_cc = message.recipient_set.filter(
                         recipient_type='cc',
-                        status=status).values_list('address', flat=True)
+                        ).values_list('address', flat=True)
 
                     if alternatives:
                         email = EmailMultiAlternatives(
@@ -126,14 +128,14 @@ class Command(BaseCommand):
                             )
 
                     try:
-                        email.send()
-                        message.status = 'sent_success'
-                        message.save()
+                        email.send()                        
+                        for recipient in recipients:
+                                recipient.status = 'sent_success'
+                                recipient.save()
 
                     except (socket_error, smtplib.SMTPSenderRefused,
                             smtplib.SMTPRecipientsRefused,
-                            smtplib.SMTPAuthenticationError) as err:
-                        print(err)
-                        message.status = 'deferred'
-                        message.save()
-
+                            smtplib.SMTPAuthenticationError):
+                        for recipient in recipients:
+                            recipient.status = 'deferred'
+                            recipient.save()

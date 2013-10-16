@@ -59,7 +59,6 @@ class DbBackend(BaseEmailBackend):
                 )
 
             for header in message.extra_headers:
-                # ToDo: Test this
                 Header.objects.create(
                     email=email,
                     key=header,

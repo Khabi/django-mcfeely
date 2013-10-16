@@ -160,3 +160,13 @@ class SimpleTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].to), 1)
 
+    def test_recipient_status(self):
+        subject = self._send_mail_simple(queue=self.q)
+        Email.objects.get(subject=subject, queue=self.q)
+
+        call_command('send_queue', 'Test_Queue')
+        self.assertEqual(len(mail.outbox), 1)  
+        self.assertEqual(
+            Email.objects.get(subject=subject, queue=self.q).recipient_set.get().status,
+            'sent_success'
+        )
