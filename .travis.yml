@@ -20,7 +20,14 @@ matrix:
 install:
     - pip install -q $DJANGO_VERSION --use-mirrors
 
-script: python setup.py test
+before_script:
+    - pip install coveralls --use-mirrors
+
+script: 
+    coverage run --source=mcfeely setup.py test
+
+after_success:
+    coveralls
 
 notifications:
     email:
