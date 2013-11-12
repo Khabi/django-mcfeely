@@ -1,5 +1,5 @@
-Latest Build Status: [![Build Status](https://travis-ci.org/Khabi/django-mcfeely.png?branch=master)](https://travis-ci.org/Khabi/django-mcfeely)
-Latest Coverage Status: [![Coverage Status](https://coveralls.io/repos/Khabi/django-mcfeely/badge.png?branch=master)](https://coveralls.io/r/Khabi/django-mcfeely?branch=master)
+[![Build Status](https://travis-ci.org/Khabi/django-mcfeely.png?branch=master)](https://travis-ci.org/Khabi/django-mcfeely)
+[![Coverage Status](https://coveralls.io/repos/Khabi/django-mcfeely/badge.png?branch=master)](https://coveralls.io/r/Khabi/django-mcfeely?branch=master)
 
 django-mcfeely
 ==============
