@@ -1,10 +1,9 @@
-from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 from email.mime.base import MIMEBase
 
-from mcfeely.models import Email, Queue, Attachment, Alternative, Header
+from mcfeely.models import Email, Attachment, Alternative, Header
 from mcfeely.models import Recipient
-
+from mcfeely.engine import default_queue
 
 class DbBackend(BaseEmailBackend):
 
@@ -16,6 +15,9 @@ class DbBackend(BaseEmailBackend):
             return num_sent
 
         for message in email_messages:
+
+            if not hasattr(message, 'queue'):
+                message.queue = default_queue(None)
 
             email = Email.objects.create(
                 m_from=message.from_email,
