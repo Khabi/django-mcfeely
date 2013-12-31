@@ -10,6 +10,8 @@ from django.core.management import call_command
 from django.conf import settings
 from django.core import mail
 from django.core.mail import send_mail as orig_send_mail
+from django.core.mail import mail_admins as orig_mail_admins
+from django.core.mail import mail_managers as orig_mail_managers
 
 from uuid import uuid4
 
@@ -40,6 +42,22 @@ def django_send_mail(mail_to=default_to):
     return [subject, results]
 
 
+def django_mail_admins():
+    subject = str(uuid4())
+    results = orig_mail_admins(
+        subject,
+        default_message)
+    return [subject, results]
+
+
+def django_mail_managers():
+    subject = str(uuid4())
+    results = orig_mail_managers(
+        subject,
+        default_message)
+    return [subject, results]
+
+
 def mcfeely_send_mail(mail_to=default_to, queue=None):
     subject = str(uuid4())
     results = send_mail(
@@ -57,7 +75,8 @@ def mcfeely_mail_admins(queue=None):
     results = mail_admins(
         subject,
         default_message,
-        queue)
+        queue,
+        html_message = '<b>%s</b>' % default_message)
     return [subject, results]
 
 
@@ -66,7 +85,8 @@ def mcfeely_mail_managers(queue=None):
     results = mail_managers(
         subject,
         default_message,
-        queue)
+        queue,
+        html_message = '<b>%s</b>' % default_message)
     return [subject, results]
 
 
@@ -113,7 +133,23 @@ def mail_alternative(mail_to=default_to, queue=None):
     return [subject, results]
 
 
-# Start of Tests
+def mail_advanced(mail_to=default_to, mail_cc=None, mail_bcc=None,
+                  headers=None, queue=None):
+    subject = str(uuid4())
+    email = QueueEmailMessage(
+        subject,
+        default_message,
+        default_from,
+        mail_to,
+        cc=mail_cc,
+        bcc=mail_bcc,
+        queue=queue,
+        headers=headers)
+
+    email.send()
+    return str(subject)
+
+
 class Simple_Email(TestCase):
 
     def setUp(self):
@@ -144,6 +180,26 @@ class Simple_Email(TestCase):
         call_command('send_queue')
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
+
+    def test_django_mail_admins(self):
+        """
+            Tests the django mail_admins() function
+        """
+        subject, results = django_mail_admins()
+        Email.objects.get(subject="[Django] %s" % subject)
+
+        call_command('send_queue')
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_django_mail_managers(self):
+        """
+            Tests the django mail_managers() function
+        """
+        subject, results = django_mail_managers()
+        Email.objects.get(subject="[Django] %s" % subject)
+
+        call_command('send_queue')
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_send_mail(self):
         """
@@ -225,6 +281,23 @@ class Advanced_Email(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
 
+    def test_advanced_mail(self):
+        subject = mail_advanced(
+            mail_cc=['cctest@example.com'],
+            mail_bcc=['bcctest@example.com'],
+            headers={'Reply-To': 'another@example.com'},
+            queue=self.queue)
+        Email.objects.get(subject=subject, queue=self.queue)
+
+        call_command('send_queue', 'Test_Queue')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].to), 1)
+        self.assertEqual(len(mail.outbox[0].bcc), 1)
+        self.assertEqual(len(mail.outbox[0].cc), 1)
+        self.assertEqual(
+            mail.outbox[0].extra_headers['Reply-To'],
+            'another@example.com')
+
 
 class Simple(TestCase):
 
@@ -246,7 +319,8 @@ class Simple(TestCase):
             queue=self.q)
         self.unsub_testqueue.save()
 
-    def _send_mail_simple(self, subject=uuid4(), mail_to=['tester@example.com'], queue=None):
+    def _send_mail_simple(self, subject=uuid4(),
+                          mail_to=['tester@example.com'], queue=None):
         send_mail(
             str(subject),
             'test email',
@@ -255,42 +329,6 @@ class Simple(TestCase):
             queue=queue,
             fail_silently=False)
         return str(subject)
-
-    def _send_mail_advanced(
-        self, subject=uuid4(), mail_to=['tester@example.com'],
-        mail_cc=None, mail_bcc=None, headers=None, queue=None):
-        email = QueueEmailMessage(
-            str(subject),
-            'test email',
-            'test@example.com',
-            mail_to,
-            cc=mail_cc,
-            bcc=mail_bcc,
-            queue=queue,
-            headers=headers)
-
-        email.send()
-        return str(subject)
-
-
-
-    def test_advanced_mail(self):
-        subject = self._send_mail_advanced(
-            mail_cc=['cctest@example.com'],
-            mail_bcc=['bcctest@example.com'],
-            headers={'Reply-To': 'another@example.com'},
-            queue=self.q)
-        Email.objects.get(subject=subject, queue=self.q)
-
-        call_command('send_queue', 'Test_Queue')
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(len(mail.outbox[0].to), 1)
-        self.assertEqual(len(mail.outbox[0].bcc), 1)
-        self.assertEqual(len(mail.outbox[0].cc), 1)
-        self.assertEqual(
-            mail.outbox[0].extra_headers['Reply-To'],
-            'another@example.com')
-
 
     def test_unsubscribe(self):
         subject = self._send_mail_simple(
