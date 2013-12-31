@@ -5,11 +5,11 @@ from mcfeely.models import Email, Attachment, Alternative, Header
 from mcfeely.models import Recipient
 from mcfeely.engine import default_queue
 
+
 class DbBackend(BaseEmailBackend):
 
     def send_messages(self, email_messages):
         num_sent = 0
-
 
         if not email_messages:
             return num_sent
