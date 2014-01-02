@@ -3,4 +3,6 @@ from mcfeely.forms import UnsubscribeForm
 
 class UnsubscribeView(CreateView):
     form_class = UnsubscribeForm
-    template_name = 'mcfeely/unsubscribe.html'
+    template_name = 'unsubscribe.html'
+
+

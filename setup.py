@@ -45,6 +45,31 @@ class ShellCommand(Command):
         from django.core.management import call_command
         call_command('shell')
 
+
+class RunserverCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from django.conf import settings
+        settings.configure(
+            DATABASES={
+                'default': {
+                    'NAME': ':memory:',
+                    'ENGINE': 'django.db.backends.sqlite3'}},
+            INSTALLED_APPS=('mcfeely',),
+            ALLOWED_HOSTS='127.0.0.1',
+            ROOT_URLCONF = 'mcfeely.urls',
+            DEBUG=True)
+        from django.core.management import call_command
+        call_command('syncdb')
+        call_command('runserver')
+
 setup(
     name='django-mcfeely',
     version='0.1',
@@ -69,5 +94,6 @@ setup(
         'Programming Language :: Python',
         'Topic :: Utilities'
     ],
-    cmdclass={'test': TestCommand, 'shell': ShellCommand}
+    cmdclass={'test': TestCommand, 'shell':
+              ShellCommand, 'runserver': RunserverCommand}
 )

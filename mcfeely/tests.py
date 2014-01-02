@@ -6,6 +6,8 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.test.client import Client
+
 from django.core.management import call_command
 from django.conf import settings
 from django.core import mail
@@ -15,6 +17,7 @@ from django.core.mail import mail_managers as orig_mail_managers
 
 from uuid import uuid4
 
+from mcfeely import urls
 from mcfeely.mail import send_mail
 from mcfeely.mail import mail_admins
 from mcfeely.mail import mail_managers
@@ -76,7 +79,7 @@ def mcfeely_mail_admins(queue=None):
         subject,
         default_message,
         queue,
-        html_message = '<b>%s</b>' % default_message)
+        html_message='<b>%s</b>' % default_message)
     return [subject, results]
 
 
@@ -86,7 +89,7 @@ def mcfeely_mail_managers(queue=None):
         subject,
         default_message,
         queue,
-        html_message = '<b>%s</b>' % default_message)
+        html_message='<b>%s</b>' % default_message)
     return [subject, results]
 
 
@@ -299,6 +302,32 @@ class Advanced_Email(TestCase):
             'another@example.com')
 
 
+class Unsubscribe_Email(TestCase):
+
+    def setUp(self):
+        mcfeely_backend = 'mcfeely.backend.DbBackend'
+        test_sender = 'django.core.mail.backends.locmem.EmailBackend'
+
+        settings.EMAIL_BACKEND = mcfeely_backend
+        settings.MCFEELY_EMAIL_BACKEND = test_sender
+        settings.ROOT_URLCONF = 'mcfeely.urls'
+
+        self.queue = Queue(
+            queue='Test_Queue', description='Testing', display_to_user=True)
+        self.queue.save()
+
+        self.client = Client()
+
+    def test_usubscribe_view(self):
+        response = self.client.get('/unsubscribe/')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(
+            '/unsubscribe/', {'address': 'unsub_test@example.com'})
+        self.assertEqual(Unsubscribe.objects.filter(
+            address='unsub_test@example.com').count(), 1)
+
+
 class Simple(TestCase):
 
     def setUp(self):
@@ -311,7 +340,7 @@ class Simple(TestCase):
         self.q = Queue(queue='Test_Queue', description='Testing')
         self.q.save()
 
-        self.unsub_all = Unsubscribe(address='unsub1@example.com')
+        self.unsub_all = Unsubscribe(address='unsub1@example.com',)
         self.unsub_all.save()
 
         self.unsub_testqueue = Unsubscribe(
