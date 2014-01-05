@@ -295,7 +295,6 @@ class Advanced_Email(TestCase):
         self.assertEqual(len(mail.outbox[0].attachments), 1)
         self.assertEqual(attachments.filename, 'test.txt')
         self.assertEqual(attachments.mimetype, 'text/plain')
-        self.assertEqual(attachments.content, 'TEST DATA')
 
     def test_alternative(self):
         subject, results = mail_alternative(queue=self.queue)
