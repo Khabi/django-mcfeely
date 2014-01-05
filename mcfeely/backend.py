@@ -50,7 +50,7 @@ class DbBackend(BaseEmailBackend):
                 elif isinstance(attachment, MIMEBase):
                     filename = attachment.get_filename()
                     content = attachment.get_payload(decode=True)
-                    mimetype = None
+                    mimetype = "%s/%s" % (attachment.get_content_maintype(), attachment.get_content_subtype())
                 else:
                     continue
                 Attachment.objects.create(

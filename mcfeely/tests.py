@@ -4,6 +4,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+from email.mime.base import MIMEBase
 
 from django.test import TestCase
 from django.test.client import Client
@@ -122,6 +123,16 @@ def mail_attachment(mail_to=default_to, queue=None):
         'Sample attachement Text',
         'text/plain')
 
+    results = email.send()
+    return [subject, results]
+
+
+def mail_attachment_mimebase(mail_to=default_to, queue=None):
+    subject, email = simple_mail(mail_to, queue)
+    data = MIMEBase('text', 'plain')
+    data.add_header('content-disposition', 'attachment', filename='test.txt')
+    data.set_payload('TEST DATA')
+    email.attach(data)
     results = email.send()
     return [subject, results]
 
@@ -270,11 +281,21 @@ class Advanced_Email(TestCase):
 
     def test_attachment(self):
         subject, results = mail_attachment(queue=self.queue)
-        Email.objects.get(subject=subject, queue=self.queue)
 
         call_command('send_queue', 'Test_Queue')
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].attachments), 1)
+
+    def test_attachment_mimebase(self):
+        subject, results = mail_attachment_mimebase()
+        call_command('send_queue')
+
+        attachments = Email.objects.get(subject=subject).attachments.get()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].attachments), 1)
+        self.assertEqual(attachments.filename, 'test.txt')
+        self.assertEqual(attachments.mimetype, 'text/plain')
+        self.assertEqual(attachments.content, 'TEST DATA')
 
     def test_alternative(self):
         subject, results = mail_alternative(queue=self.queue)
@@ -316,6 +337,14 @@ class Unsubscribe_Email(TestCase):
             queue='Test_Queue', description='Testing', display_to_user=True)
         self.queue.save()
 
+        self.unsub_all = Unsubscribe(address='unsub1@example.com',)
+        self.unsub_all.save()
+
+        self.unsub_testqueue = Unsubscribe(
+            address='unsub2@example.com',
+            queue=self.queue)
+        self.unsub_testqueue.save()
+
         self.client = Client()
 
     def test_usubscribe_view(self):
@@ -327,56 +356,19 @@ class Unsubscribe_Email(TestCase):
         self.assertEqual(Unsubscribe.objects.filter(
             address='unsub_test@example.com').count(), 1)
 
-
-class Simple(TestCase):
-
-    def setUp(self):
-        mcfeely_backend = 'mcfeely.backend.DbBackend'
-        test_sender = 'django.core.mail.backends.locmem.EmailBackend'
-
-        settings.EMAIL_BACKEND = mcfeely_backend
-        settings.MCFEELY_EMAIL_BACKEND = test_sender
-
-        self.q = Queue(queue='Test_Queue', description='Testing')
-        self.q.save()
-
-        self.unsub_all = Unsubscribe(address='unsub1@example.com',)
-        self.unsub_all.save()
-
-        self.unsub_testqueue = Unsubscribe(
-            address='unsub2@example.com',
-            queue=self.q)
-        self.unsub_testqueue.save()
-
-    def _send_mail_simple(self, subject=uuid4(),
-                          mail_to=['tester@example.com'], queue=None):
-        send_mail(
-            str(subject),
-            'test email',
-            'test@example.com',
-            mail_to,
-            queue=queue,
-            fail_silently=False)
-        return str(subject)
-
-    def test_unsubscribe(self):
-        subject = self._send_mail_simple(
-            mail_to=['unsub1@example.com',
-                     'tester@example.com'])
+    def test_unsub_all(self):
+        subject, email = simple_mail(mail_to=['unsub1@example.com'])
+        results = email.send()
         Email.objects.get(subject=subject)
 
         call_command('send_queue')
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(len(mail.outbox[0].to), 1)
+        self.assertEqual(len(mail.outbox), 0)
 
-    def test_recipient_status(self):
-        subject = self._send_mail_simple(queue=self.q)
-        Email.objects.get(subject=subject, queue=self.q)
+    def test_unsub_queue(self):
+        subject, email = simple_mail(
+            mail_to=['unsub2@example.com'], queue=self.queue)
+        results = email.send()
+        Email.objects.get(subject=subject)
 
-        call_command('send_queue', 'Test_Queue')
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            Email.objects.get(
-                subject=subject, queue=self.q).recipient_set.get().status,
-            'sent_success'
-        )
+        call_command('send_queue')
+        self.assertEqual(len(mail.outbox), 0)
