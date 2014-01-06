@@ -77,6 +77,11 @@ setup(
     author='Richard Cox',
     author_email='code@bot37.com',
     url='https://github.com/Khabi/django-mcfeely',
+    long_description="""
+        Django mail queue backend.  Allows for putting email in specific queues
+        to be sent out in batches (via a management command), editing emails
+        from the admin and more.
+    """,
     packages=[
         'mcfeely',
         'mcfeely.management',
@@ -85,7 +90,7 @@ setup(
         'mcfeely': ['fixtures/*'],
     },
     classifiers=[
-        'Development Status :: 1 - Beta',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
