@@ -75,7 +75,7 @@ setup(
     version='0.1',
     description='Email queuing system for django',
     author='Richard Cox',
-    author_email='richard@pixelatedninja.com',
+    author_email='code@bot37.com',
     url='https://github.com/Khabi/django-mcfeely',
     packages=[
         'mcfeely',
