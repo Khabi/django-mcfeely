@@ -189,9 +189,9 @@ class Simple_Email(TestCase):
             Tests django's send_mail function with the mcfeely backend
         """
         subject, results = django_send_mail()
-        Email.objects.get(subject=subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(subject=subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
 
@@ -200,9 +200,10 @@ class Simple_Email(TestCase):
             Tests the django mail_admins() function
         """
         subject, results = django_mail_admins()
-        Email.objects.get(subject="[Django] %s" % subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject="[Django] %s" % subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_django_mail_managers(self):
@@ -210,9 +211,10 @@ class Simple_Email(TestCase):
             Tests the django mail_managers() function
         """
         subject, results = django_mail_managers()
-        Email.objects.get(subject="[Django] %s" % subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject="[Django] %s" % subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_send_mail(self):
@@ -220,9 +222,9 @@ class Simple_Email(TestCase):
             Tests the mcfeely send_mail() function
         """
         subject, results = mcfeely_send_mail()
-        Email.objects.get(subject=subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(subject=subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
 
@@ -231,9 +233,10 @@ class Simple_Email(TestCase):
             Tests the mcfeely send_mail() function with queue
         """
         subject, results = mcfeely_send_mail(queue=self.queue)
-        Email.objects.get(subject=subject, queue=self.queue)
-
         call_command('send_queue', 'Test_Queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject=subject, queue=self.queue).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
 
@@ -242,9 +245,10 @@ class Simple_Email(TestCase):
             Tests the mcfeely mail_admins() function
         """
         subject, results = mcfeely_mail_admins()
-        Email.objects.get(subject="[Django] %s" % subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject="[Django] %s" % subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_mail_managers(self):
@@ -252,17 +256,18 @@ class Simple_Email(TestCase):
             Tests the mcfeely mail_admins() function
         """
         subject, results = mcfeely_mail_managers()
-        Email.objects.get(subject="[Django] %s" % subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject="[Django] %s" % subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_simple_mail(self):
         subject, email = simple_mail()
         results = email.send()
-        Email.objects.get(subject=subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(subject=subject).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
 
@@ -280,13 +285,21 @@ class Advanced_Email(TestCase):
         self.queue.save()
 
     def test_attachment(self):
+        """
+            Simple mail attachment
+        """            
         subject, results = mail_attachment(queue=self.queue)
-
         call_command('send_queue', 'Test_Queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject=subject, queue=self.queue).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].attachments), 1)
 
     def test_attachment_mimebase(self):
+        """
+            Simple mail attachment of a mimebase object
+        """
         subject, results = mail_attachment_mimebase()
         call_command('send_queue')
 
@@ -297,22 +310,30 @@ class Advanced_Email(TestCase):
         self.assertEqual(attachments.mimetype, 'text/plain')
 
     def test_alternative(self):
+        """
+            Alternative email test
+        """
         subject, results = mail_alternative(queue=self.queue)
-        Email.objects.get(subject=subject, queue=self.queue)
-
         call_command('send_queue', 'Test_Queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject=subject, queue=self.queue).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
 
     def test_advanced_mail(self):
+        """ 
+            Test advanced mail sending with extra headers
+        """
         subject = mail_advanced(
             mail_cc=['cctest@example.com'],
             mail_bcc=['bcctest@example.com'],
             headers={'Reply-To': 'another@example.com'},
             queue=self.queue)
-        Email.objects.get(subject=subject, queue=self.queue)
-
         call_command('send_queue', 'Test_Queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject=subject, queue=self.queue).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].to), 1)
         self.assertEqual(len(mail.outbox[0].bcc), 1)
@@ -347,6 +368,9 @@ class Unsubscribe_Email(TestCase):
         self.client = Client()
 
     def test_usubscribe_view(self):
+        """
+            Generic unsubscribe view
+        """
         response = self.client.get('/unsubscribe/')
         self.assertEqual(response.status_code, 200)
 
@@ -356,18 +380,23 @@ class Unsubscribe_Email(TestCase):
             address='unsub_test@example.com').count(), 1)
 
     def test_unsub_all(self):
+        """
+            Tests unsubscribing from all emails
+        """
         subject, email = simple_mail(mail_to=['unsub1@example.com'])
         results = email.send()
-        Email.objects.get(subject=subject)
-
         call_command('send_queue')
+        self.assertEqual(Email.objects.filter(subject=subject).count(), 1)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_unsub_queue(self):
+        """
+            Tests unsubscribing from specific email queues
+        """
         subject, email = simple_mail(
             mail_to=['unsub2@example.com'], queue=self.queue)
         results = email.send()
-        Email.objects.get(subject=subject)
-
         call_command('send_queue')
+
+        self.assertEqual(Email.objects.filter(subject=subject).count(), 1)
         self.assertEqual(len(mail.outbox), 0)
