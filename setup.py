@@ -72,7 +72,7 @@ class RunserverCommand(Command):
 
 setup(
     name='django-mcfeely',
-    version='0.2',
+    version='0.3',
     description='Email queuing system for django',
     author='Richard Cox',
     author_email='code@bot37.com',
@@ -87,7 +87,7 @@ setup(
         'mcfeely.management',
     ],
     package_data={
-        'mcfeely': ['fixtures/*'],
+        'mcfeely': ['fixtures/*', 'templates/*'],
     },
     classifiers=[
         'Development Status :: 4 - Beta',
