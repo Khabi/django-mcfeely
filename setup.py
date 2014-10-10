@@ -2,17 +2,13 @@
 
 from distutils.core import setup
 from distutils.core import Command
-import django
 
+import django
+from django.conf import settings
+from django.core.management import call_command
 
 class TestCommand(Command):
     user_options = []
-
-    try:
-        from django.test.runner import DiscoverRunner
-        RUNNER = 'django.test.runner.DiscoverRunner'
-    except:
-        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
 
     def initialize_options(self):
         pass
@@ -21,7 +17,11 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        from django.conf import settings
+        if django.get_version() == '1.6' or django.get_version() == '1.7':
+            RUNNER = 'django.test.runner.DiscoverRunner'
+        else:
+            RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+
         settings.configure(
             DATABASES={
                 'default': {
@@ -31,12 +31,12 @@ class TestCommand(Command):
                 'django.middleware.common.CommonMiddleware',
                 'django.middleware.csrf.CsrfViewMiddleware',
             ),
-            INSTALLED_APPS=('mcfeely',),
-            TEST_RUNNER = self.RUNNER)
+            TEST_RUNNER = RUNNER,
+            INSTALLED_APPS=('mcfeely',))
 
-        from django.core.management import call_command
         if getattr(django, 'setup', None):
             django.setup()
+
 
         call_command('test', 'mcfeely')
 
@@ -44,13 +44,6 @@ class TestCommand(Command):
 class ShellCommand(Command):
     user_options = []
 
-    try:
-        import django.test.runner.DiscoverRunner
-        RUNNER = 'django.test.runner.DiscoverRunner'
-    except:
-        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
-
-
     def initialize_options(self):
         pass
 
@@ -58,20 +51,13 @@ class ShellCommand(Command):
         pass
 
     def run(self):
-        from django.conf import settings
         settings.configure(
             DATABASES={
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
-            INSTALLED_APPS=('mcfeely',),
-            MIDDLEWARE_CLASSES = (
-                'django.middleware.common.CommonMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-            ),
-            TEST_RUNNER = self.RUNNER)
+            INSTALLED_APPS=('mcfeely',))
 
-        from django.core.management import call_command
         if getattr(django, 'setup', None):
             django.setup()
 
@@ -81,12 +67,6 @@ class ShellCommand(Command):
 class RunserverCommand(Command):
     user_options = []
 
-    try:
-        import django.test.runner.DiscoverRunner
-        RUNNER = 'django.test.runner.DiscoverRunner'
-    except:
-        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
-
     def initialize_options(self):
         pass
 
@@ -94,25 +74,15 @@ class RunserverCommand(Command):
         pass
 
     def run(self):
-        from django.conf import settings
         settings.configure(
             DATABASES={
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
-            MIDDLEWARE_CLASSES = (
-                'django.middleware.common.CommonMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-            ),
             INSTALLED_APPS=('mcfeely',),
             ALLOWED_HOSTS='127.0.0.1',
             ROOT_URLCONF = 'mcfeely.urls',
-            TEST_RUNNER = self.RUNNER,
             DEBUG=True)
-
-        from django.core.management import call_command
-        if getattr(django, 'setup', None):
-            django.setup()
 
         call_command('syncdb')
         call_command('runserver')
