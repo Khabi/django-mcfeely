@@ -5,6 +5,7 @@ from mcfeely.models import Unsubscribe, Queue
 class UnsubscribeForm(ModelForm):
     class Meta:
         model = Unsubscribe
+        exclude = []
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user','')

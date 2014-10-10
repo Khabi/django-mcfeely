@@ -2,6 +2,7 @@
 
 from distutils.core import setup
 from distutils.core import Command
+import django
 
 
 class TestCommand(Command):
@@ -20,8 +21,17 @@ class TestCommand(Command):
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
-            INSTALLED_APPS=('mcfeely',))
+            MIDDLEWARE_CLASSES = (
+                'django.middleware.common.CommonMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+            ),
+            INSTALLED_APPS=('mcfeely',),
+            TEST_RUNNER = 'django.test.runner.DiscoverRunner')
+
         from django.core.management import call_command
+        if getattr(django, 'setup', None):
+            django.setup()
+
         call_command('test', 'mcfeely')
 
 
@@ -41,8 +51,13 @@ class ShellCommand(Command):
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
-            INSTALLED_APPS=('mcfeely',))
+            INSTALLED_APPS=('mcfeely',),
+            TEST_RUNNER = 'django.test.runner.DiscoverRunner')
+
         from django.core.management import call_command
+        if getattr(django, 'setup', None):
+            django.setup()
+
         call_command('shell')
 
 
@@ -65,8 +80,13 @@ class RunserverCommand(Command):
             INSTALLED_APPS=('mcfeely',),
             ALLOWED_HOSTS='127.0.0.1',
             ROOT_URLCONF = 'mcfeely.urls',
+            TEST_RUNNER = 'django.test.runner.DiscoverRunner',
             DEBUG=True)
+
         from django.core.management import call_command
+        if getattr(django, 'setup', None):
+            django.setup()
+
         call_command('syncdb')
         call_command('runserver')
 
