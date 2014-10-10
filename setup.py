@@ -8,6 +8,12 @@ import django
 class TestCommand(Command):
     user_options = []
 
+    try:
+        from django.test.runner import DiscoverRunner
+        RUNNER = 'django.test.runner.DiscoverRunner'
+    except:
+        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+
     def initialize_options(self):
         pass
 
@@ -26,7 +32,7 @@ class TestCommand(Command):
                 'django.middleware.csrf.CsrfViewMiddleware',
             ),
             INSTALLED_APPS=('mcfeely',),
-            TEST_RUNNER = 'django.test.runner.DiscoverRunner')
+            TEST_RUNNER = self.RUNNER)
 
         from django.core.management import call_command
         if getattr(django, 'setup', None):
@@ -38,6 +44,13 @@ class TestCommand(Command):
 class ShellCommand(Command):
     user_options = []
 
+    try:
+        import django.test.runner.DiscoverRunner
+        RUNNER = 'django.test.runner.DiscoverRunner'
+    except:
+        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+
+
     def initialize_options(self):
         pass
 
@@ -52,7 +65,11 @@ class ShellCommand(Command):
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
             INSTALLED_APPS=('mcfeely',),
-            TEST_RUNNER = 'django.test.runner.DiscoverRunner')
+            MIDDLEWARE_CLASSES = (
+                'django.middleware.common.CommonMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+            ),
+            TEST_RUNNER = self.RUNNER)
 
         from django.core.management import call_command
         if getattr(django, 'setup', None):
@@ -64,6 +81,12 @@ class ShellCommand(Command):
 class RunserverCommand(Command):
     user_options = []
 
+    try:
+        import django.test.runner.DiscoverRunner
+        RUNNER = 'django.test.runner.DiscoverRunner'
+    except:
+        RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+
     def initialize_options(self):
         pass
 
@@ -77,10 +100,14 @@ class RunserverCommand(Command):
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
+            MIDDLEWARE_CLASSES = (
+                'django.middleware.common.CommonMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+            ),
             INSTALLED_APPS=('mcfeely',),
             ALLOWED_HOSTS='127.0.0.1',
             ROOT_URLCONF = 'mcfeely.urls',
-            TEST_RUNNER = 'django.test.runner.DiscoverRunner',
+            TEST_RUNNER = self.RUNNER,
             DEBUG=True)
 
         from django.core.management import call_command
