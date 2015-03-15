@@ -17,11 +17,15 @@ class Base64Field(models.TextField):
 
     def get_data(self, obj):
         try:
-            return  base64.b64decode(
+            content = base64.b64decode(
                 force_bytes(
                     getattr(
                         obj,
                         self.field_name)))
+            if isinstance(content, bytes):
+                return content.decode("utf-8")
+            else:
+                return content
         except NameError:
             return base64.b64decode(getattr(obj, self.field_name))
 

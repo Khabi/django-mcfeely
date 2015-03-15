@@ -1,9 +1,3 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
 from email.mime.base import MIMEBase
 
 from django.test import TestCase
@@ -120,7 +114,7 @@ def mail_attachment(mail_to=default_to, queue=None):
     subject, email = simple_mail(mail_to, queue)
     email.attach(
         'sample.txt',
-        'Sample attachement Text',
+        u'Sample attachement Text',
         'text/plain')
 
     results = email.send()
@@ -287,7 +281,7 @@ class Advanced_Email(TestCase):
     def test_attachment(self):
         """
             Simple mail attachment
-        """            
+        """
         subject, results = mail_attachment(queue=self.queue)
         call_command('send_queue', 'Test_Queue')
 
@@ -322,7 +316,7 @@ class Advanced_Email(TestCase):
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
 
     def test_advanced_mail(self):
-        """ 
+        """
             Test advanced mail sending with extra headers
         """
         subject = mail_advanced(

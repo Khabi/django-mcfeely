@@ -56,6 +56,7 @@ class ShellCommand(Command):
                 'default': {
                     'NAME': ':memory:',
                     'ENGINE': 'django.db.backends.sqlite3'}},
+            EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend',
             INSTALLED_APPS=('mcfeely',))
 
         if getattr(django, 'setup', None):

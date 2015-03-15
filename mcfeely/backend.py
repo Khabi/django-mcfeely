@@ -53,6 +53,7 @@ class DbBackend(BaseEmailBackend):
                     mimetype = "%s/%s" % (attachment.get_content_maintype(), attachment.get_content_subtype())
                 else:
                     continue
+
                 Attachment.objects.create(
                     email=email,
                     filename=filename,
