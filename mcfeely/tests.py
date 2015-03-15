@@ -114,7 +114,7 @@ def mail_attachment(mail_to=default_to, queue=None):
     subject, email = simple_mail(mail_to, queue)
     email.attach(
         'sample.txt',
-        u'Sample attachement Text',
+        'Sample attachement Text',
         'text/plain')
 
     results = email.send()
