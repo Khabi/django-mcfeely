@@ -47,6 +47,14 @@ send_mail('Subject here', 'Here is the message.', 'from@example.com',
      ['to@example.com'], queue=mail_queue, fail_silently=False)
 ```
 
+Or you can pass it the name of a queue instead.
+```python
+from mcfeely.mail import send_mail
+
+send_mail('Subject here', 'Here is the message.', 'from@example.com',
+     ['to@example.com'], queue='sample_queue', fail_silently=False)
+```
+
 Sending Queued Mail
 ===============
 Queued Mail is sent via a management command

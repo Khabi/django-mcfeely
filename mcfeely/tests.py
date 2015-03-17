@@ -234,6 +234,18 @@ class Simple_Email(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(results, 1)
 
+    def test_queue_name_mail(self):
+        """
+            Tests email sending with just a queue name and not a object
+        """
+        subject, results = mcfeely_send_mail(queue='Test_Queue')
+        call_command('send_queue', 'Test_Queue')
+
+        self.assertEqual(Email.objects.filter(
+            subject=subject, queue=self.queue).count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(results, 1)
+
     def test_mail_admins(self):
         """
             Tests the mcfeely mail_admins() function
