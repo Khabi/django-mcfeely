@@ -112,9 +112,10 @@ setup(
     packages=[
         'mcfeely',
         'mcfeely.management',
+        'mcfeely.management.commands'
     ],
     package_data={
-        'mcfeely': ['fixtures/*', 'templates/*', 'management/*', 'management/commands/*'],
+        'mcfeely': ['fixtures/*', 'templates/*'],
     },
     classifiers=[
         'Development Status :: 4 - Beta',
