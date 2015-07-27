@@ -17,7 +17,9 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        if django.get_version() == '1.6' or django.get_version() == '1.7':
+        django_version = django.get_version().split('.')
+
+        if int(django_version[0]) == 1 and int(django_version[1]) >= 6:
             RUNNER = 'django.test.runner.DiscoverRunner'
         else:
             RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
@@ -32,7 +34,14 @@ class TestCommand(Command):
                 'django.middleware.csrf.CsrfViewMiddleware',
             ),
             TEST_RUNNER = RUNNER,
-            INSTALLED_APPS=('mcfeely',))
+            INSTALLED_APPS=(
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'mcfeely'
+            )
+        )
+
 
         if getattr(django, 'setup', None):
             django.setup()
@@ -105,7 +114,7 @@ setup(
         'mcfeely.management',
     ],
     package_data={
-        'mcfeely': ['fixtures/*', 'templates/*'],
+        'mcfeely': ['fixtures/*', 'templates/*', 'management/*', 'management/commands/*'],
     },
     classifiers=[
         'Development Status :: 4 - Beta',
