@@ -23,6 +23,9 @@ class Queue(models.Model):
     def __unicode__(self):
         return(self.description)
 
+    def __str__(self):
+        return(self.description)
+
 
 class Email(models.Model):
 
@@ -45,7 +48,7 @@ class Recipient(models.Model):
     address = models.CharField(max_length=254)
     recipient_type = models.CharField(max_length=3, choices=RECIPIENT_TYPE)
     status = models.CharField(
-        max_length='100', default='in_queue', choices=STATUS)
+        max_length=100, default='in_queue', choices=STATUS)
 
     def __unicode__(self):
         return('%s : %s' % (self.recipient_type, self.address))
