@@ -10,9 +10,6 @@ def send_mail(subject, message, from_email, recipient_list,
               fail_silently=False, auth_user=None, auth_password=None,
               queue=None, connection=None):
 
-    if isinstance(queue, str):
-        queue = Queue.objects.get(queue=queue)
-
     connection = connection or get_connection(username=auth_user,
                                               password=auth_password,
                                               fail_silently=fail_silently)

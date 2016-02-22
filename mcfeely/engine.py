@@ -8,8 +8,10 @@ def default_queue(queue):
             settings, 'DEFAULT_EMAIL_QUEUE', 'Default'
         )
         return(Queue.objects.get(queue=default_queue))
+    if isinstance(queue, str):
+        return(Queue.objects.get(queue=queue))
     else:
-        return queue
+        return(queue)
 
 
 class QueueEmailMessage(EmailMessage):
