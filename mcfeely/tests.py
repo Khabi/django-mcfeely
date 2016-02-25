@@ -159,6 +159,7 @@ def mail_advanced(mail_to=default_to, mail_cc=None, mail_bcc=None,
 
 
 class Simple_Email(TestCase):
+    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'
@@ -279,6 +280,7 @@ class Simple_Email(TestCase):
 
 
 class Advanced_Email(TestCase):
+    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'
@@ -350,6 +352,7 @@ class Advanced_Email(TestCase):
 
 
 class Unsubscribe_Email(TestCase):
+    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'
