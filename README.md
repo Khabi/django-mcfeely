@@ -4,11 +4,12 @@
 ![Django Version 1.4](https://img.shields.io/badge/django-1.4-blue.svg)
 ![Django Version 1.7](https://img.shields.io/badge/django-1.7-blue.svg)
 ![Django Version 1.8](https://img.shields.io/badge/django-1.8-blue.svg)
+![Django Version 1.8](https://img.shields.io/badge/django-1.9-blue.svg)
 
 django-mcfeely
 ==============
 
-Requires Django 1.4 and higher (officially supported 1.4 / 1.7 / 1.8)
+Requires Django 1.4 and higher (officially supported 1.4 / 1.7 / 1.8 / 1.9)
 
 Django mail queue backend.  Allows for putting email in specific queues to be sent out in batches (via a management command), editing emails from the admin and more.
 
