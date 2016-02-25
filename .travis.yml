@@ -36,10 +36,10 @@ matrix:
 
 
 install:
-    - pip install -q $DJANGO_VERSION --use-mirrors
-
-before_script:
-    - pip install coveralls --use-mirrors
+    - pip install -q $DJANGO_VERSION
+    - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
+    - pip install coveralls
 
 script: 
     coverage run --source=mcfeely setup.py test
