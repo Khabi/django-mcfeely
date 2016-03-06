@@ -3,10 +3,6 @@
 from distutils.core import setup
 from distutils.core import Command
 
-import django
-from django.conf import settings
-from django.core.management import call_command
-
 class TestCommand(Command):
     user_options = []
 
@@ -17,6 +13,10 @@ class TestCommand(Command):
         pass
 
     def run(self):
+        import django
+        from django.conf import settings
+        from django.core.management import call_command
+
         django_version = django.get_version().split('.')
 
         if int(django_version[0]) == 1 and int(django_version[1]) >= 6:
@@ -60,6 +60,10 @@ class ShellCommand(Command):
         pass
 
     def run(self):
+        import django
+        from django.conf import settings
+        from django.core.management import call_command
+
         settings.configure(
             DATABASES={
                 'default': {
@@ -99,7 +103,7 @@ class RunserverCommand(Command):
 
 setup(
     name='django-mcfeely',
-    version='0.7',
+    version='0.8',
     description='Email queuing system for django',
     author='Richard Cox',
     author_email='code@bot37.com',
