@@ -174,7 +174,7 @@ class Simple_Email(TestCase):
             ('Manager One', 'manager_one@example.com'),
             ('Manager Two', 'manager_two@example.com')
         )
-        
+
         self.queue = Queue(queue='Default', description='Default Queue')
         self.queue.save()
         self.queue = Queue(queue='Test_Queue', description='Testing')
@@ -306,6 +306,8 @@ class Advanced_Email(TestCase):
             subject=subject, queue=self.queue).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].attachments), 1)
+        self.assertEqual(mail.outbox[0].attachments[0][1], 'Sample attachement Text')
+
 
     def test_attachment_mimebase(self):
         """
@@ -319,6 +321,7 @@ class Advanced_Email(TestCase):
         self.assertEqual(len(mail.outbox[0].attachments), 1)
         self.assertEqual(attachments.filename, 'test.txt')
         self.assertEqual(attachments.mimetype, 'text/plain')
+        self.assertEqual(mail.outbox[0].attachments[0][1], 'TEST DATA')
 
     def test_alternative(self):
         """
@@ -355,7 +358,6 @@ class Advanced_Email(TestCase):
 
 
 class Unsubscribe_Email(TestCase):
-    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'

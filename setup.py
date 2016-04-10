@@ -103,7 +103,7 @@ class RunserverCommand(Command):
 
 setup(
     name='django-mcfeely',
-    version='0.9',
+    version='0.10',
     description='Email queuing system for django',
     author='Richard Cox',
     author_email='code@bot37.com',
