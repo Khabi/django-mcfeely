@@ -159,7 +159,6 @@ def mail_advanced(mail_to=default_to, mail_cc=None, mail_bcc=None,
 
 
 class Simple_Email(TestCase):
-    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'
@@ -175,9 +174,12 @@ class Simple_Email(TestCase):
             ('Manager One', 'manager_one@example.com'),
             ('Manager Two', 'manager_two@example.com')
         )
-
+        
+        self.queue = Queue(queue='Default', description='Default Queue')
+        self.queue.save()
         self.queue = Queue(queue='Test_Queue', description='Testing')
         self.queue.save()
+
 
     def test_django_send_mail(self):
         """
@@ -280,7 +282,6 @@ class Simple_Email(TestCase):
 
 
 class Advanced_Email(TestCase):
-    fixtures = ['initial_data.json']
 
     def setUp(self):
         mcfeely_backend = 'mcfeely.backend.DbBackend'
@@ -289,6 +290,8 @@ class Advanced_Email(TestCase):
         settings.EMAIL_BACKEND = mcfeely_backend
         settings.MCFEELY_EMAIL_BACKEND = test_sender
 
+        self.queue = Queue(queue='Default', description='Default Queue')
+        self.queue.save()
         self.queue = Queue(queue='Test_Queue', description='Testing')
         self.queue.save()
 
@@ -362,8 +365,9 @@ class Unsubscribe_Email(TestCase):
         settings.MCFEELY_EMAIL_BACKEND = test_sender
         settings.ROOT_URLCONF = 'mcfeely.urls'
 
-        self.queue = Queue(
-            queue='Test_Queue', description='Testing', display_to_user=True)
+        self.queue = Queue(queue='Default', description='Default Queue')
+        self.queue.save()
+        self.queue = Queue(queue='Test_Queue', description='Testing')
         self.queue.save()
 
         self.unsub_all = Unsubscribe(address='unsub1@example.com',)
