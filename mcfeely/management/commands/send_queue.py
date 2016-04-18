@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from django.core.mail import get_connection
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.conf import settings
-from django.db.models import Q
 
 from socket import error as socket_error
 import smtplib
@@ -14,7 +13,7 @@ from mcfeely.models import Unsubscribe
 from mcfeely.models import Alternative
 from mcfeely.models import Attachment
 from mcfeely.models import Header
-from mcfeely.models import Recipient
+
 
 EMAIL_BACKEND = getattr(
     settings,
@@ -22,15 +21,16 @@ EMAIL_BACKEND = getattr(
     'django.core.mail.backends.smtp.EmailBackend'
 )
 
+
 class Command(BaseCommand):
     args = '<queue_name>'
     option_list = BaseCommand.option_list + (
         make_option('--retry',
-            action='store_true',
-            dest='retry',
-            default=False,
-            help='retry Deferred email'),
-        )
+                    action='store_true',
+                    dest='retry',
+                    default=False,
+                    help='retry Deferred email'),
+    )
     help = 'send all mail in the specified queue'
 
     def __messages(self, queue, status):
@@ -53,14 +53,13 @@ class Command(BaseCommand):
         except Unsubscribe.DoesNotExist:
             return False
 
-
     def handle(self, *args, **options):
         connection = get_connection(backend=EMAIL_BACKEND)
 
         if options['retry']:
-            status='deferred'
+            status = 'deferred'
         else:
-            status='in_queue'
+            status = 'in_queue'
 
         if len(args) == 0:
             args = [x['queue'] for x in Queue.objects.all().values()]
@@ -85,13 +84,13 @@ class Command(BaseCommand):
                         status=status)
                     message_to = recipients.filter(
                         recipient_type='to',
-                        ).values_list('address', flat=True)
+                    ).values_list('address', flat=True)
                     message_bcc = message.recipient_set.filter(
                         recipient_type='bcc',
-                        ).values_list('address', flat=True)
+                    ).values_list('address', flat=True)
                     message_cc = message.recipient_set.filter(
                         recipient_type='cc',
-                        ).values_list('address', flat=True)
+                    ).values_list('address', flat=True)
 
                     if alternatives:
                         email = EmailMultiAlternatives(
@@ -128,10 +127,10 @@ class Command(BaseCommand):
                             )
 
                     try:
-                        email.send()                        
+                        email.send()
                         for recipient in recipients:
-                                recipient.status = 'sent_success'
-                                recipient.save()
+                            recipient.status = 'sent_success'
+                            recipient.save()
 
                     except (socket_error, smtplib.SMTPSenderRefused,
                             smtplib.SMTPRecipientsRefused,
